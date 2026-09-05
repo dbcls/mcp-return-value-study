@@ -1,0 +1,98 @@
+[CHEMBL1075533] BLOCKED
+   gate1 payload-identity : FAIL  2 item(s) failed:
+      t_u20_CHEMBL1075533_CHEMBL3545252: missing run_sparql sha1 (on=None, off=1f47ba5d1577fe85400fae162c8638664d13d790)
+      t_u20_CHEMBL1075533_CHEMBL6067492: missing run_sparql sha1 (on=fa908e1ed90d44286d259361b532c31d83184b53, off=None)
+   gate2 window-match     : SKIP  SKIPPED: expected_window present but no captured payload. Run the pinned units_on query, save CHEMBL1075533.units_on.csv in --payload-dir; row-for-row diff needs the actual bytes (runs.jsonl has none).
+   gate3 item-count/ids   : PASS  units_on: 71/71 ids exact; units_off: 71/71 ids exact
+[CHEMBL1075538] BLOCKED
+   gate1 payload-identity : FAIL  1 item(s) failed:
+      t_u20_CHEMBL1075538_CHEMBL1614701: missing run_sparql sha1 (on=None, off=4e74e282f1b3f2d831ce317592233c9a32180909)
+   gate2 window-match     : SKIP  SKIPPED: expected_window present but no captured payload. Run the pinned units_on query, save CHEMBL1075538.units_on.csv in --payload-dir; row-for-row diff needs the actual bytes (runs.jsonl has none).
+   gate3 item-count/ids   : PASS  units_on: 65/65 ids exact; units_off: 65/65 ids exact
+[CHEMBL1743121] BLOCKED
+   gate1 payload-identity : FAIL  1 item(s) failed:
+      t_u20_CHEMBL1743121_CHEMBL4112930: missing run_sparql sha1 (on=ec7132a93a77c09f1e5ab6e4c19783dc22bfee53, off=None)
+   gate2 window-match     : SKIP  SKIPPED: expected_window present but no captured payload. Run the pinned units_on query, save CHEMBL1743121.units_on.csv in --payload-dir; row-for-row diff needs the actual bytes (runs.jsonl has none).
+   gate3 item-count/ids   : PASS  units_on: 36/36 ids exact; units_off: 36/36 ids exact
+[CHEMBL1875] BLOCKED
+   gate1 payload-identity : FAIL  2 item(s) failed:
+      c_u20_CHEMBL1875_CHEMBL3934371: missing run_sparql sha1 (on=None, off=5307601ba555ccee2e3dd1e0181f2fb6abd18739)
+      c_u20_CHEMBL1875_CHEMBL4580044: missing run_sparql sha1 (on=e7c80f3645e2b23b3ed227a7a63c18143b701ac6, off=None)
+   gate2 window-match     : SKIP  SKIPPED: expected_window present but no captured payload. Run the pinned units_on query, save CHEMBL1875.units_on.csv in --payload-dir; row-for-row diff needs the actual bytes (runs.jsonl has none).
+   gate3 item-count/ids   : PASS  units_on: 86/86 ids exact; units_off: 86/86 ids exact
+[CHEMBL2095172] BLOCKED
+   gate1 payload-identity : FAIL  3 item(s) failed:
+      t_u20_CHEMBL2095172_CHEMBL1204073: missing run_sparql sha1 (on=None, off=d4e91b523a67c574f9d17b4e265d68ec4bf06c53)
+      t_u20_CHEMBL2095172_CHEMBL1204074: missing run_sparql sha1 (on=None, off=d4e91b523a67c574f9d17b4e265d68ec4bf06c53)
+      t_u20_CHEMBL2095172_CHEMBL144718: missing run_sparql sha1 (on=None, off=d4e91b523a67c574f9d17b4e265d68ec4bf06c53)
+   gate2 window-match     : SKIP  SKIPPED: expected_window present but no captured payload. Run the pinned units_on query, save CHEMBL2095172.units_on.csv in --payload-dir; row-for-row diff needs the actual bytes (runs.jsonl has none).
+   gate3 item-count/ids   : PASS  units_on: 44/44 ids exact; units_off: 44/44 ids exact
+[CHEMBL2366254] BLOCKED
+   gate1 payload-identity : FAIL  1 item(s) failed:
+      t_u20_CHEMBL2366254_CHEMBL413: missing run_sparql sha1 (on=None, off=474653e41a7b4fd07ff056596862daf130dbf85a)
+   gate2 window-match     : SKIP  SKIPPED: expected_window present but no captured payload. Run the pinned units_on query, save CHEMBL2366254.units_on.csv in --payload-dir; row-for-row diff needs the actual bytes (runs.jsonl has none).
+   gate3 item-count/ids   : PASS  units_on: 54/54 ids exact; units_off: 54/54 ids exact
+[CHEMBL2889] BLOCKED
+   gate1 payload-identity : FAIL  1 item(s) failed:
+      t_u20_CHEMBL2889_CHEMBL1996136: missing run_sparql sha1 (on=25bcc7b1a82ef0b8616f9705c54c029cfb0f6a34, off=None)
+   gate2 window-match     : SKIP  SKIPPED: expected_window present but no captured payload. Run the pinned units_on query, save CHEMBL2889.units_on.csv in --payload-dir; row-for-row diff needs the actual bytes (runs.jsonl has none).
+   gate3 item-count/ids   : PASS  units_on: 93/93 ids exact; units_off: 93/93 ids exact
+[CHEMBL3071] CLEARED
+   gate1 payload-identity : PASS  all 5 items have distinct on/off pinned sha1
+   gate2 window-match     : SKIP  SKIPPED: expected_window present but no captured payload. Run the pinned units_on query, save CHEMBL3071.units_on.csv in --payload-dir; row-for-row diff needs the actual bytes (runs.jsonl has none).
+   gate3 item-count/ids   : PASS  units_on: 5/5 ids exact; units_off: 5/5 ids exact
+[CHEMBL3072] BLOCKED
+   gate1 payload-identity : FAIL  2 item(s) failed:
+      c_u20_CHEMBL3072_CHEMBL3640885: missing run_sparql sha1 (on=None, off=ef69f1e2d03af414bf98f06fb69ffc5a433db972)
+      t_u20_CHEMBL3072_CHEMBL377611: missing run_sparql sha1 (on=None, off=ef69f1e2d03af414bf98f06fb69ffc5a433db972)
+   gate2 window-match     : SKIP  SKIPPED: expected_window present but no captured payload. Run the pinned units_on query, save CHEMBL3072.units_on.csv in --payload-dir; row-for-row diff needs the actual bytes (runs.jsonl has none).
+   gate3 item-count/ids   : PASS  units_on: 100/100 ids exact; units_off: 100/100 ids exact
+[CHEMBL3108638] BLOCKED
+   gate1 payload-identity : FAIL  2 item(s) failed:
+      t_u20_CHEMBL3108638_CHEMBL3771239: missing run_sparql sha1 (on=6fac6af8faa8491937db1df1733564b2372a1546, off=None)
+      t_u20_CHEMBL3108638_CHEMBL3774770: missing run_sparql sha1 (on=None, off=ed9efa07515a6972bb41386ab6fe9fc2f041036e)
+   gate2 window-match     : SKIP  SKIPPED: expected_window present but no captured payload. Run the pinned units_on query, save CHEMBL3108638.units_on.csv in --payload-dir; row-for-row diff needs the actual bytes (runs.jsonl has none).
+   gate3 item-count/ids   : PASS  units_on: 85/85 ids exact; units_off: 85/85 ids exact
+[CHEMBL3112376] CLEARED
+   gate1 payload-identity : PASS  all 89 items have distinct on/off pinned sha1
+   gate2 window-match     : SKIP  SKIPPED: expected_window present but no captured payload. Run the pinned units_on query, save CHEMBL3112376.units_on.csv in --payload-dir; row-for-row diff needs the actual bytes (runs.jsonl has none).
+   gate3 item-count/ids   : PASS  units_on: 89/89 ids exact; units_off: 89/89 ids exact
+[CHEMBL3799] CLEARED
+   gate1 payload-identity : PASS  all 28 items have distinct on/off pinned sha1
+   gate2 window-match     : SKIP  SKIPPED: expected_window present but no captured payload. Run the pinned units_on query, save CHEMBL3799.units_on.csv in --payload-dir; row-for-row diff needs the actual bytes (runs.jsonl has none).
+   gate3 item-count/ids   : PASS  units_on: 28/28 ids exact; units_off: 28/28 ids exact
+[CHEMBL4523988] CLEARED
+   gate1 payload-identity : PASS  all 59 items have distinct on/off pinned sha1
+   gate2 window-match     : SKIP  SKIPPED: expected_window present but no captured payload. Run the pinned units_on query, save CHEMBL4523988.units_on.csv in --payload-dir; row-for-row diff needs the actual bytes (runs.jsonl has none).
+   gate3 item-count/ids   : PASS  units_on: 59/59 ids exact; units_off: 59/59 ids exact
+[CHEMBL5084] CLEARED
+   gate1 payload-identity : PASS  all 14 items have distinct on/off pinned sha1
+   gate2 window-match     : SKIP  SKIPPED: expected_window present but no captured payload. Run the pinned units_on query, save CHEMBL5084.units_on.csv in --payload-dir; row-for-row diff needs the actual bytes (runs.jsonl has none).
+   gate3 item-count/ids   : PASS  units_on: 14/14 ids exact; units_off: 14/14 ids exact
+[CHEMBL5198] CLEARED
+   gate1 payload-identity : PASS  all 16 items have distinct on/off pinned sha1
+   gate2 window-match     : SKIP  SKIPPED: expected_window present but no captured payload. Run the pinned units_on query, save CHEMBL5198.units_on.csv in --payload-dir; row-for-row diff needs the actual bytes (runs.jsonl has none).
+   gate3 item-count/ids   : PASS  units_on: 16/16 ids exact; units_off: 16/16 ids exact
+[CHEMBL5705] CLEARED
+   gate1 payload-identity : PASS  all 88 items have distinct on/off pinned sha1
+   gate2 window-match     : SKIP  SKIPPED: expected_window present but no captured payload. Run the pinned units_on query, save CHEMBL5705.units_on.csv in --payload-dir; row-for-row diff needs the actual bytes (runs.jsonl has none).
+   gate3 item-count/ids   : PASS  units_on: 88/88 ids exact; units_off: 88/88 ids exact
+[CHEMBL6080] CLEARED
+   gate1 payload-identity : PASS  all 64 items have distinct on/off pinned sha1
+   gate2 window-match     : SKIP  SKIPPED: expected_window present but no captured payload. Run the pinned units_on query, save CHEMBL6080.units_on.csv in --payload-dir; row-for-row diff needs the actual bytes (runs.jsonl has none).
+   gate3 item-count/ids   : PASS  units_on: 64/64 ids exact; units_off: 64/64 ids exact
+[CHEMBL612570] CLEARED
+   gate1 payload-identity : PASS  all 73 items have distinct on/off pinned sha1
+   gate2 window-match     : SKIP  SKIPPED: expected_window present but no captured payload. Run the pinned units_on query, save CHEMBL612570.units_on.csv in --payload-dir; row-for-row diff needs the actual bytes (runs.jsonl has none).
+   gate3 item-count/ids   : PASS  units_on: 73/73 ids exact; units_off: 73/73 ids exact
+[CHEMBL612851] BLOCKED
+   gate1 payload-identity : FAIL  1 item(s) failed:
+      t_u20_CHEMBL612851_CHEMBL592344: missing run_sparql sha1 (on=None, off=1b443c8c05b761ee00dbb166fbae2c3e777ee57d)
+   gate2 window-match     : SKIP  SKIPPED: expected_window present but no captured payload. Run the pinned units_on query, save CHEMBL612851.units_on.csv in --payload-dir; row-for-row diff needs the actual bytes (runs.jsonl has none).
+   gate3 item-count/ids   : PASS  units_on: 100/100 ids exact; units_off: 100/100 ids exact
+[CHEMBL614517] CLEARED
+   gate1 payload-identity : PASS  all 67 items have distinct on/off pinned sha1
+   gate2 window-match     : SKIP  SKIPPED: expected_window present but no captured payload. Run the pinned units_on query, save CHEMBL614517.units_on.csv in --payload-dir; row-for-row diff needs the actual bytes (runs.jsonl has none).
+   gate3 item-count/ids   : PASS  units_on: 67/67 ids exact; units_off: 67/67 ids exact
+
+summary: 10 target(s) cleared of 20 checked; ACTION NEEDED

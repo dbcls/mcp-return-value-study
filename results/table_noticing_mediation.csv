@@ -1,0 +1,3 @@
+group,n,correct,misread,abstain,neither,mean_tokens,cost_vs_units_on
+noticed (>1 call),766,566,142,56,2,232473,6.6
+did not notice (1 call),163,13,140,10,0,34967,1.0

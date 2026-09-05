@@ -1,0 +1,819 @@
+# Implicit units — ITEM-LEVEL suite, 18 treatment + 12 control.
+#
+# WHY THIS REPLACES THE 6-ITEM VERSION. Both conditions are measured on the SAME
+# compounds, so the manipulation is a paired design and McNemar's exact test is
+# the right one. With six treatment items even perfect discordance gives
+# two-sided p = 0.0625: that design could not reach significance at any effect
+# size, and the pilot duly returned 5 discordant pairs, 0 reversals, p = 0.0625.
+# The item count here was fixed by a power calculation BEFORE this run and is
+# reported whatever the outcome; it is not the pilot continued until it passed.
+# At the pilot's rate (5 of 6 uM items lost), 18 paired items give p < 0.001.
+#
+# LIMIT is 100, not 30: the 30-row payload holds only six uM rows. The payload
+# therefore differs from the pilot's, and the two are not pooled.
+#
+# CONDITIONS (--conditions units_on,units_off --repeats 1). Format is held at
+# native CSV in both; only the unit column varies. THE AMBIGUITY IS NOT ChEMBL'S:
+# it returns cco:units, normalizes cco:standardValue to nM, and links QUDT.
+# units_off reproduces the many real APIs that return a bare number.
+#
+# DESIGN. Stripped of units the default reading is nM: wrong for uM rows (1000x),
+# accidentally right for nM rows. The prediction is not "units_off is worse" but
+# "units_off fails on uM rows and not on nM rows". Compounds appearing twice with
+# different values (CHEMBL122812, CHEMBL191881, CHEMBL336228) are excluded: the
+# question would be ambiguous. Items are the first 18 uM and first 12 nM rows
+# in payload order, no selection on outcome.
+#
+# GROUND TRUTH is read from the payload the tool returns.
+
+tasks:
+
+  # ---- treatment: uM rows. Reading the bare number as nM is 1000x off ----
+
+  - id: t_u18_CHEMBL2370193
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL2370193 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:9,?500)(?![\\d,])"
+    trap:
+      wrong_if_regex: "(?i)(?<![\\d.])(?:9\\.5(?:\\.0)?)\\s*(?:nM|nanomolar)"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL32486
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL32486 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:75,?000)(?![\\d,])"
+    trap:
+      wrong_if_regex: "(?i)(?<![\\d.])(?:75(?:\\.0)?)\\s*(?:nM|nanomolar)"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL32918
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL32918 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:75,?000)(?![\\d,])"
+    trap:
+      wrong_if_regex: "(?i)(?<![\\d.])(?:75(?:\\.0)?)\\s*(?:nM|nanomolar)"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL287467
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL287467 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:75,?000)(?![\\d,])"
+    trap:
+      wrong_if_regex: "(?i)(?<![\\d.])(?:75(?:\\.0)?)\\s*(?:nM|nanomolar)"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL36353
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL36353 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:75,?000)(?![\\d,])"
+    trap:
+      wrong_if_regex: "(?i)(?<![\\d.])(?:75(?:\\.0)?)\\s*(?:nM|nanomolar)"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL274120
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL274120 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:100,?000)(?![\\d,])"
+    trap:
+      wrong_if_regex: "(?i)(?<![\\d.])(?:100(?:\\.0)?)\\s*(?:nM|nanomolar)"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL306027
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL306027 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:1,?000,?000)(?![\\d,])"
+    trap:
+      wrong_if_regex: "(?i)(?<![\\d.])(?:1000(?:\\.0)?)\\s*(?:nM|nanomolar)"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL50627
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL50627 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:10,?000)(?![\\d,])"
+    trap:
+      wrong_if_regex: "(?i)(?<![\\d.])(?:10(?:\\.0)?)\\s*(?:nM|nanomolar)"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL263736
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL263736 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:75,?000)(?![\\d,])"
+    trap:
+      wrong_if_regex: "(?i)(?<![\\d.])(?:75(?:\\.0)?)\\s*(?:nM|nanomolar)"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL419772
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL419772 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:30,?000)(?![\\d,])"
+    trap:
+      wrong_if_regex: "(?i)(?<![\\d.])(?:30(?:\\.0)?)\\s*(?:nM|nanomolar)"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL2370179
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL2370179 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:100,?000)(?![\\d,])"
+    trap:
+      wrong_if_regex: "(?i)(?<![\\d.])(?:100(?:\\.0)?)\\s*(?:nM|nanomolar)"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL276169
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL276169 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:300)(?![\\d,])"
+    trap:
+      wrong_if_regex: "(?i)(?<![\\d.])(?:0\\.3(?:\\.0)?)\\s*(?:nM|nanomolar)"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL417727
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL417727 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:10,?000)(?![\\d,])"
+    trap:
+      wrong_if_regex: "(?i)(?<![\\d.])(?:10(?:\\.0)?)\\s*(?:nM|nanomolar)"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL32166
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL32166 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:75,?000)(?![\\d,])"
+    trap:
+      wrong_if_regex: "(?i)(?<![\\d.])(?:75(?:\\.0)?)\\s*(?:nM|nanomolar)"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL1366
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL1366 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:250,?000)(?![\\d,])"
+    trap:
+      wrong_if_regex: "(?i)(?<![\\d.])(?:250(?:\\.0)?)\\s*(?:nM|nanomolar)"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL4525964
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL4525964 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:10,?000,?000)(?![\\d,])"
+    trap:
+      wrong_if_regex: "(?i)(?<![\\d.])(?:10000(?:\\.0)?)\\s*(?:nM|nanomolar)"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL2370171
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL2370171 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:1,?000,?000)(?![\\d,])"
+    trap:
+      wrong_if_regex: "(?i)(?<![\\d.])(?:1000(?:\\.0)?)\\s*(?:nM|nanomolar)"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL340384
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL340384 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:25,?000)(?![\\d,])"
+    trap:
+      wrong_if_regex: "(?i)(?<![\\d.])(?:25(?:\\.0)?)\\s*(?:nM|nanomolar)"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  # ---- control: nM rows. The nM default is already right, so no trap ----
+
+  - id: t_u18_CHEMBL133728
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL133728 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:4\\.9)(?![\\d,])"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL196896
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL196896 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:500)(?![\\d,])"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL334443
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL334443 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:480)(?![\\d,])"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL133785
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL133785 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:282)(?![\\d,])"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL335426
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL335426 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:5)(?![\\d,])"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL116779
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL116779 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:2,?200)(?![\\d,])"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL122431
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL122431 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:10,?000)(?![\\d,])"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL136024
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL136024 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:1,?000)(?![\\d,])"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL139132
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL139132 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:121)(?![\\d,])"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL122424
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL122424 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:10,?000)(?![\\d,])"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL333987
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL333987 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:10,?000)(?![\\d,])"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"
+
+  - id: t_u18_CHEMBL100316
+    prompt: >
+      Call run_sparql with database="chembl" and execute EXACTLY the following
+      query, without modifying it:
+
+      PREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>
+      SELECT ?chemblId ?value ?units
+      FROM <http://rdf.ebi.ac.uk/dataset/chembl>
+      WHERE {
+        ?activity a cco:Activity ;
+                  cco:hasMolecule ?molecule ;
+                  cco:hasAssay/cco:hasTarget <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4072> ;
+                  cco:standardType "IC50" ;
+                  cco:value ?value ;
+                  cco:units ?units .
+        ?molecule cco:chemblId ?chemblId .
+        FILTER(?units IN ("nM", "uM"))
+      }
+      LIMIT 100
+
+      From the returned rows, report the IC50 of compound CHEMBL100316 expressed in
+      nanomolar (nM). Give the numeric value in nM.
+    answer_regex: "(?<![\\d.])(?:150)(?![\\d,])"
+    abstain_regex: "(?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|if we assume|assumption is unreliable|units column (was |is )?(not returned|missing|absent))"

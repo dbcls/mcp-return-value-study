@@ -1,0 +1,5 @@
+{
+ "deprecated": true,
+ "superseded_by": "cmh_units20.json",
+ "reason": "pre-v4 scoring; see cmh_units20.json for final values"
+}

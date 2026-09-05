@@ -1,0 +1,179 @@
+# ChEMBL label collision -- SINGLE-MOLECULE items (18 treatment + 12 control),
+# DETERMINISTIC WINDOW. Supersedes tasks.chembl_label_single.yaml, whose pinned
+# query used LIMIT 200 with NO ORDER BY over 36,494 candidate molecules, so the
+# 200-row window (and the specific items) were not reproducible. Fix: ORDER BY
+# ?chemblId. The deterministic top-200 window holds 124 id-only + 76 named; items
+# are the first 18 id-only (answer NONE) and first 12 named (answer the name) by
+# chemblId within it. Per-item ground truth is molecule-intrinsic.
+#
+# CONDITIONS (--conditions label_implicit,label_explicit --repeats 1) unchanged.
+# The kind column in label_explicit is a deterministic function of two columns
+# present in both conditions: zero information, salience only.
+#
+# DISCLOSURE (for the paper): the naturalistic TP53 payload is 98.4% id-only
+# (35,910 / 36,494 labelled molecules; only 584 = 1.6% named). ORDER BY ?chemblId
+# front-loads older, named compounds (76/200), so the balanced 18:12 item split
+# is a constructed control for statistical power, NOT the naturalistic ratio,
+# which is reported separately as prevalence.
+#
+# TODO byte-audit: the 12 control name regexes are first-draft (whitespace->\s+,
+# literal otherwise). Verify against real answers -- agents may render a name
+# differently (e.g. "U-0126" as "U0126", "CHOLECALCIFEROL" as "vitamin D3").
+
+tasks:
+- id: t_lab1o_CHEMBL10276
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL10276. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bNONE\b
+  trap:
+    wrong_if_regex: (?i)CHEMBL10276(?![0-9])
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL104728
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL104728. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bNONE\b
+  trap:
+    wrong_if_regex: (?i)CHEMBL104728(?![0-9])
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL104732
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL104732. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bNONE\b
+  trap:
+    wrong_if_regex: (?i)CHEMBL104732(?![0-9])
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL105739
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL105739. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bNONE\b
+  trap:
+    wrong_if_regex: (?i)CHEMBL105739(?![0-9])
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL1078244
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL1078244. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bNONE\b
+  trap:
+    wrong_if_regex: (?i)CHEMBL1078244(?![0-9])
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL1080147
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL1080147. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bNONE\b
+  trap:
+    wrong_if_regex: (?i)CHEMBL1080147(?![0-9])
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL1080510
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL1080510. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bNONE\b
+  trap:
+    wrong_if_regex: (?i)CHEMBL1080510(?![0-9])
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL1080687
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL1080687. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bNONE\b
+  trap:
+    wrong_if_regex: (?i)CHEMBL1080687(?![0-9])
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL1080744
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL1080744. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bNONE\b
+  trap:
+    wrong_if_regex: (?i)CHEMBL1080744(?![0-9])
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL1080861
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL1080861. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bNONE\b
+  trap:
+    wrong_if_regex: (?i)CHEMBL1080861(?![0-9])
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL1080897
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL1080897. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bNONE\b
+  trap:
+    wrong_if_regex: (?i)CHEMBL1080897(?![0-9])
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL1080915
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL1080915. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bNONE\b
+  trap:
+    wrong_if_regex: (?i)CHEMBL1080915(?![0-9])
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL1080918
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL1080918. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bNONE\b
+  trap:
+    wrong_if_regex: (?i)CHEMBL1080918(?![0-9])
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL1081075
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL1081075. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bNONE\b
+  trap:
+    wrong_if_regex: (?i)CHEMBL1081075(?![0-9])
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL1081635
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL1081635. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bNONE\b
+  trap:
+    wrong_if_regex: (?i)CHEMBL1081635(?![0-9])
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL1081842
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL1081842. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bNONE\b
+  trap:
+    wrong_if_regex: (?i)CHEMBL1081842(?![0-9])
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL1082160
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL1082160. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bNONE\b
+  trap:
+    wrong_if_regex: (?i)CHEMBL1082160(?![0-9])
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL1084441
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL1084441. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bNONE\b
+  trap:
+    wrong_if_regex: (?i)CHEMBL1084441(?![0-9])
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL100473
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL100473. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bU\-0126\b
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL101
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL101. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bPHENYLBUTAZONE\b
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL101326
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL101326. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bFIPRONIL\b
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL1014
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL1014. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bCANDESARTAN\s+CILEXETIL\b
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL1018
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL1018. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bDIENESTROL\b
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL102714
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL102714. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bSB\-216763\b
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL10284
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL10284. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bSB\-222200\b
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL104
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL104. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bCLOTRIMAZOLE\b
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL1042
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL1042. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bCHOLECALCIFEROL\b
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL104255
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL104255. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bFLAVOKAWAIN\s+B\b
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL105496
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL105496. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\b4\-METHOXY\s+CHALCONE\b
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)
+- id: t_lab1o_CHEMBL105712
+  prompt: "Call run_sparql with database=\"chembl\" and execute EXACTLY the following query, without modifying it:\n\nPREFIX cco: <http://rdf.ebi.ac.uk/terms/chembl#>\n      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n      SELECT DISTINCT ?molecule ?moleculeLabel ?chemblId\n      FROM <http://rdf.ebi.ac.uk/dataset/chembl>\n      WHERE {\n        VALUES ?target { <http://rdf.ebi.ac.uk/resource/chembl/target/CHEMBL4096> }\n        ?activity a cco:Activity ;\n                  cco:hasMolecule ?molecule ;\n                  cco:hasAssay/cco:hasTarget ?target .\n        ?molecule rdfs:label ?moleculeLabel ; cco:chemblId ?chemblId .\n      } ORDER BY ?chemblId LIMIT 200\n\nFrom the returned rows, find molecule CHEMBL105712. Report that molecule's real compound name. If it has no compound name, answer exactly NONE. Answer with the name or with NONE, nothing else."
+  answer_regex: (?i)\bPHENACYL\s+CHLORIDE\b
+  abstain_regex: (?i)(cannot (definitively|determine|tell)|impossible to (tell|determine)|unable to (determine|tell)|no way to know)

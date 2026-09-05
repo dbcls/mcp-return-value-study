@@ -1,0 +1,37 @@
+{
+ "note": "McNemar b/c on paired units_on vs units_off. Final (v4-adjudicated) scoring; matches paper Table 2. chi2 = (b-c)^2/(b+c).",
+ "qwen3.6-35b-a3b": {
+  "treatment_uM": {
+   "n_items": 929,
+   "units_on_correct": 929,
+   "units_off_correct": 579,
+   "b_on_only": 350,
+   "c_off_only": 0
+  },
+  "control_nM": {
+   "n_items": 308,
+   "units_on_correct": 308,
+   "units_off_correct": 307,
+   "b_on_only": 1,
+   "c_off_only": 0
+  },
+  "treatment_mcnemar_chi2": 350.0
+ },
+ "qwen3-30b-a3b": {
+  "treatment_uM": {
+   "n_items": 929,
+   "units_on_correct": 260,
+   "units_off_correct": 0,
+   "b_on_only": 260,
+   "c_off_only": 0
+  },
+  "control_nM": {
+   "n_items": 308,
+   "units_on_correct": 305,
+   "units_off_correct": 306,
+   "b_on_only": 0,
+   "c_off_only": 1
+  },
+  "treatment_mcnemar_chi2": 260.0
+ }
+}
