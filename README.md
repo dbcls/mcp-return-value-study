@@ -8,7 +8,7 @@ task are held fixed; only one column of the returned payload is changed.
 Central finding: whether being explicit helps depends on **which agent is asking**,
 not on what the payload contains. This repository contains the code, the task
 suites, and the aggregated (scored) results needed to reproduce every number in
-the paper (`paper/main.tex`).
+the paper (to be published).
 
 ## The two experiments
 
@@ -51,7 +51,6 @@ results/        aggregated, scored outputs (final, v4-adjudicated)
   table_noticing_mediation.csv  paper Table (noticing vs recovery)
   cmh_units20.json              McNemar b/c recomputed from the shipped CSVs
   RESULTS_*.md, *.md            narrative result summaries
-paper/          main.tex (CEURART) + references.bib
 docs/           RUNBOOK_units20.md (operational live-run procedure)
 ```
 
@@ -199,7 +198,7 @@ disabled: **Qwen3.6-35B-A3B** (higher-performing) and **Qwen3-30B-A3B**
 of 2.0 and a 65,536 maximum context; a wrong factor silently corrupts
 generation, so verify the serving command before each run (see the runbook).
 The two agents differ in both size and generation, so "higher/lower-performing"
-labels a specific pair, not a general capability law (paper, Limitations).
+labels a specific pair, not a general capability law.
 
 ## Data provenance and licensing
 
