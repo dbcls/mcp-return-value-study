@@ -3,7 +3,7 @@
 Executes the frozen 20-target units experiment and clears every target through
 the three gates before its numbers enter the analysis. **Run targets one at a
 time. Do not proceed past a red gate.** A broken manipulation here does not
-crash; it returns fluent prose that looks like a finding (HANDOVER.md section 4).
+crash; it returns fluent prose that looks like a finding.
 
 This runbook covers the live-run steps that must happen on the machine with the
 vLLM server and TogoMCP. The task files, scorer, and gate checker are already
@@ -34,7 +34,7 @@ python3 apply_exclusions.py --invdir inv_csv/ --out post_exclusion20.json \
 
 ---
 
-## 1. Environment — verify BEFORE any run (HANDOVER.md section 3)
+## 1. Environment — verify BEFORE any run
 
 Model switch = vLLM restart. After `docker compose up -d --force-recreate vllm flask-chat`:
 
@@ -141,7 +141,7 @@ eyeballed against the conclusion sentence.
 - **Breslow–Day is NOT tested** (untestable at this n); describe per-target
   (b, c) in a table and say so.
 - Per-target b/c from `perrun.all.csv` (pair on `task_id` across conditions;
-  the pairing, not the marginals, gives b and c — HANDOVER.md).
+  the pairing, not the marginals, gives b and c).
 
 ---
 
