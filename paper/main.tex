@@ -1,0 +1,711 @@
+% CEUR-WS single-column manuscript, per https://ceur-ws.org/HOWTOSUBMIT.html#CEURART
+% Requires ceurart.cls (download the CEURART bundle and place ceurart.cls in the
+% project root, e.g. from the Overleaf "CEURART" template).
+% Compile with pdfLaTeX + BibTeX. Prose avoids dash punctuation by request.
+% Statistics use math superscripts. Units are written as text ($\mu$M, nM).
+\documentclass[sigconf]{ceurart}
+
+\usepackage{amsmath}
+\usepackage{booktabs}
+
+\begin{document}
+
+\copyrightyear{2026}
+\copyrightclause{Copyright for this paper by its authors.
+  Use permitted under Creative Commons License Attribution 4.0
+  International (CC BY 4.0).}
+
+\conference{18th International SWAT4HCLS Conference, 2026. Basel, Switzerland (SWAT4HCLS)}
+
+\title{When explicitness pays in a tool's return value:
+a controlled study on a production life-science MCP server}
+
+\author[1]{Yasunori Yamamoto}[email=yy@dbcls.rois.ac.jp,orcid=0000-0002-6943-6887]
+\author[1]{Yuki Moriya}[email=moriya@dbcls.rois.ac.jp,orcid=0000-0001-8195-5893]
+\address[1]{Database Division for Life Science (DBCLS), National Institute of Genetics, 178-4-4 Wakashiba, Kashiwa, Chiba 277-0871, JAPAN}
+\author[2]{Akira R. Kinjo}[email=arkinjo@gmail.com,orcid=0000-0002-4006-8208]
+\address[2]{Anima Machina G.K., Osaka Station Building No. 3, 29th floor, Room 1-1-1, 1-1-3 Umeda, Kita-ku, Osaka 530-0001, Japan}
+
+\begin{abstract}
+Life-science databases are increasingly reached by AI agents through a shared
+interface called the Model Context Protocol (MCP). Existing advice tells whoever
+builds one to always be explicit: state the units, spell out identifiers, label
+each column. It never says where the added clarity is worth the tokens it costs,
+or for which agent. We studied this on a production server, holding the model and
+task fixed and changing only one column of the returned payload, then measuring
+how the answer changed and at what token cost.
+
+Whether being explicit pays depended on which agent was asking, not on what the
+data contained. In the first setting the information is present but implicit: a
+compound's label is either its real name or a copy of its own identifier code,
+which also appears in the next column. A higher-performing model resolves this
+itself (123 of 124 correct), so a column stating the answer helps it almost
+nothing. A lower-performing model mistakes the code for a name; adding one column
+marking each label as name or code, data it already received, raises it from 16 to
+75 of 124 for about 407 tokens, under one percent of the run.
+Even so, the latter still falls short of the former's performance.
+
+In the second setting the information is truly missing: with the unit removed, a
+bare 10 could mean nanomolar or micromolar, and no reasoning recovers which. Across
+twenty targets this made the higher-performing model wrong on 350 of 929
+micromolar rows and the lower-performing model wrong on all, while correct rows
+still cost several times more. Explicitness is best understood as a safeguard: a few
+hundred tokens that do nothing for an agent that would infer the answer and a great
+deal for one that would not, applied to every client because a server cannot tell in
+advance which one needs it.
+\end{abstract}
+
+\begin{keywords}
+  Model Context Protocol \sep
+  LLM agents \sep
+  interface design \sep
+  return-value explicitness \sep
+  token cost
+\end{keywords}
+
+\maketitle
+
+\section{Introduction}
+
+Connecting a language model to knowledge it does not hold internally has been a
+standing requirement rather than a passing one, whether the connection is made by
+retrieval~\cite{lewis2020rag}, by learned tool use~\cite{schick2023toolformer}, or
+by the broader family of methods that augment a model with external
+resources~\cite{mialon2023augmented}. AI agents that use language models
+increasingly reach databases not through custom code but through a thin, shared
+protocol. In the life sciences, the Model Context Protocol (MCP)~\cite{mcp2024spec}
+is quickly becoming that layer. By early 2026, it had more than 10{,}000 active servers
+and tens of millions of monthly SDK downloads~\cite{srinivasan2026bridging}
+across all domains. Even within the life sciences alone, a curated list we maintain
+records several dozen hosted remote MCP servers from independent providers, spanning
+public institutions such as EMBL-EBI, SIB, and DBCLS as well as commercial and
+community implementations~\cite{dbcls2026remotemcp}. A server advertises a few
+tools, an agent calls them,
+and whatever the tool returns becomes the agent's view of the data.
+The person who builds the server therefore decides, in the shape of each response,
+how much of the reasoning is done for the agent and how much is left to it.
+
+Guidance for that builder is plentiful and consistent. Limit the size of
+responses, paginate long results, return errors as structured values rather than
+prose, and above all be explicit: name the units, write out the identifiers, and
+say what each column means. Reports from production MCP deployments turn these same
+concerns, such as server contracts and structured error semantics, into readiness
+checklists~\cite{srinivasan2026bridging}. The advice is sound as far as it goes,
+but it is uniform. It says to be explicit everywhere, and it does not say where
+that explicitness earns back the tokens it costs, or for whom. On a public
+endpoint, those tokens are paid on every call, by every client, indefinitely.
+
+We treat that gap as an empirical question. Keeping the model and the task fixed
+and changing only the payload that a production server returns, using
+TogoMCP~\cite{kinjo2026togomcp} over the EBI RDF platform's~\cite{jupp2014ebirdf}
+ChEMBL graph~\cite{zdrazil2024chembl}, we ask when added explicitness changes an
+agent's answer, and at what cost. We keep the less explicit version realistic. In
+the label experiment it is not invented at all: it is the data as the server already
+stores it, because a compound's \texttt{rdfs:label} is its accession rather than a
+real name for 97.7 percent of ChEMBL molecules (Section~\ref{sec:results}). In the
+units experiment we instead reconstruct a poorer design by removing a column that ChEMBL
+itself provides. ChEMBL does record the unit, so the omission is not a fault of
+ChEMBL; it reproduces the case of a simpler interface or export that returns a bare
+value with no unit. This is not an exotic case: any query or export that selects the
+value column without the unit column yields exactly this payload, including an agent
+that composes its own SELECT and omits \texttt{?units}. The two experiments play
+complementary roles. The label experiment is grounded in real data at a measured prevalence, because it
+uses the server's own data as stored. The units experiment is a controlled
+manipulation that isolates the case of genuinely absent information, which no
+amount of reasoning can recover; we read it as a clean demonstration of that
+mechanism, not as a claim about how often this particular column is dropped in
+practice. Two settings organize the study. Both begin from a query that
+asks the server for the compounds tested against a chosen protein, which in this
+field is called a target, and returns one row per compound. In the first setting
+everything the agent needs is present but implicit: a compound's
+\texttt{rdfs:label} is either a real name or a copy of the compound's own
+accession, and that accession sits in the next column, so the ambiguity can be
+resolved from the payload alone. In the second setting the needed information is
+genuinely absent: with the unit column removed, a bare 10 could mean 10 nanomolar
+or 10 micromolar, and no reasoning over the returned rows recovers which.
+
+Our central finding is that whether being explicit helps depends on which agent is
+reading the response, not on what the response contains. For a lower-performing
+agent the explicit column helps in both settings, but its role differs. When the
+information is only implicit, the agent still succeeds sometimes without it (16 of
+124), and the column raises its score sharply without letting it catch up. When
+the information is genuinely absent, the column is necessary, because without the
+unit the agent succeeds on none. The higher-performing agent, by contrast,
+resolves the implicit case on its own (123 of 124), so the column buys it almost
+nothing there, while the absence of a genuinely needed unit still damages it and
+raises its cost. A server cannot see which agent is calling, so it cannot apply
+this cost only to the clients that need it, which is why a uniform instruction to
+be explicit is defensible as a precaution and hard to defend as efficiency advice.
+
+The effects rest on patterns that are common rather than anecdotal. A compound's
+label is its accession for 97.7 percent of ChEMBL's 1.9 million small molecules,
+for 98.4 percent of the molecules that bind TP53, and, in a second database, for
+9.8 percent of HomoloGene's genes. One point about the method is worth stating
+here, because a broken change in this setting does not crash but instead returns
+fluent, plausible prose. We therefore check every number by reading the actual
+bytes that the server returned and the agent wrote, rather than by trusting a
+summary. We mentioned the specific cases in which this
+discipline reversed our own early conclusions in Discussion.
+
+We make four contributions. First, to our knowledge the first controlled
+measurement of the explicitness of a server's return value on a production MCP
+server, holding the model and the task fixed, together with a reusable measurement
+framework and task suite. Second, the finding that the value of that change
+depends on the client: for a lower-performing agent the explicit column is highly
+beneficial but not equalizing when the information is only implicit, and necessary
+when the information is genuinely absent, while for a higher-performing agent it is
+unneeded in the first case and only a cost in the second. Third, a cost account
+with clear denominators and an asymmetry in which a withheld column raises token
+cost on rows it never corrupts, the same amplification that earlier work produces
+on purpose through attacks, here appearing from an ordinary, less explicit payload.
+Fourth, evidence that the underlying patterns are the common case, and a method for
+measuring interface effects when a broken change returns fluent but wrong prose.
+
+\section{Related Work}
+
+\paragraph{Benchmarking tool use under MCP.}
+One line of work measures how well models use tools. MCP-RADAR scores 507 tasks
+across six domains on answer correctness and operational accuracy, and reports a
+trade-off between accuracy and efficiency across models~\cite{gao2025mcpradar}.
+MCP-Bench and MCPToolBench++ extend this to hundreds and thousands of live
+servers~\cite{wang2025mcpbenchbenchmarkingtoolusingllm,fan2025mcptoolbenchlargescaleai}. These studies vary the model
+and the task over fixed tools in order to profile capability. We invert that
+design. We hold the model and the task fixed and vary one column of the server's
+output, so that any effect can be attributed to that design choice rather than to a
+model's aptitude, and we ground the study in a well built production server rather
+than a benchmark harness.
+
+\paragraph{Designing MCP servers and tools.}
+A second line prescribes how to build the server. Field lessons from an enterprise
+MCP deployment group failures into five design areas, namely server contracts,
+user context, timeouts, errors, and observability, and propose structured error
+semantics and adaptive tool budgeting~\cite{srinivasan2026bridging}. On the tool
+description side, an audit of 856 tools finds that 97.1 percent carry at least one
+defect and shows that enriching descriptions raises success by a median of 5.85
+points but adds 67 percent more execution steps and makes 17 percent of cases
+worse~\cite{hasan2026smelly}. We share the message that explicitness is not free
+and can even hurt, but we move it from the input side, meaning how a tool is
+described, to the output side, meaning what a tool returns. We add the client
+dependence that a single agent study cannot see, and the column we add can be
+computed from two columns the response already contains, so it gives the agent no
+new information. Any improvement therefore comes from stating what was already
+present, not from providing something new.
+
+\paragraph{The cost of tool interaction.}
+A third line treats the token cost of tool use as its object of study and trims
+verbose tool output to reduce it~\cite{xiao2026reducingcostllmagents}. Most directly, an
+economic denial of service attack acts only on the content an MCP tool returns to
+the model, the text the agent reads, while leaving the tool's declared interface
+(its function signatures) and the final answer it produces unchanged. By
+restructuring that returned content, it steers the agent into long tool calling
+chains that raise the cost per query by as much as 658 times, yet the task still
+completes correctly, which makes the tampering hard to
+detect~\cite{zhou2026beyondmaxtokens}. Our units experiment acts on the same surface, the
+returned content rather than the declared interface, but from the opposite
+direction: an ordinary, benign, less explicit payload, not an engineered attack. It
+reproduces the same correctness independent cost inflation and, unlike the attack,
+also causes a selective loss of correctness on exactly the rows the omission
+corrupts. The cost increase that an attacker engineers, a careless design incurs for
+free.
+
+\paragraph{When to call a tool.}
+A fourth line studies the decision of whether to call a tool at all. When2Tool
+shows that the need for a tool call can be read from a model's hidden state (AUROC
+0.89 to 0.96), that models already know when a call is needed but fail to act on
+that knowledge, and that prompting cannot cleanly control the balance between
+accuracy and the number of calls~\cite{sun2026llmagentsknowtools}. Their concern is calling
+too often and reducing unnecessary calls. Ours is the opposite. By withholding a
+column, the server creates the need for an extra call, and in our data the agents
+that recovered were largely those that noticed the gap and paid for that extra call
+(Section~\ref{sec:results}). Their finding that prompting is a blunt lever supports
+our claim that the effective lever sits in the server's response, not in the
+client's prompt.
+
+\paragraph{Context engineering and model capacity.}
+A fifth line is closest to our result about the client. It shows that carefully
+built tool environments let small models match large ones. MARRVEL-MCP provides
+models of 3 to 20 billion parameters with a set of 44 curated genomics tools and
+reports that a 20 billion parameter model rises from 41 to 94 percent, concluding
+that contextual guidance can compensate for limited model
+capacity~\cite{everton2026marrvelmcp}. The same spirit appears in agent frameworks
+that curate or evolve their tool sets. Their result is itself quantitative, but it
+measures the effect of a whole curated tool environment. It does not separate the
+value of a single explicitness choice, report a case where such a choice is worth
+nothing, or show that the help can be large yet still leave a lower-performing
+model behind a higher-performing one. We add these three things, and conclude that
+contextual guidance compensates for limited capacity only in part, not in full.
+
+\section{Materials and Methods}
+
+\paragraph{Server, data, and tool.}
+All queries were issued to a production MCP server, TogoMCP~\cite{kinjo2026togomcp},
+backed by the EMBL EBI RDF platform~\cite{jupp2014ebirdf}, over the ChEMBL (version
+34) graph~\cite{zdrazil2024chembl}. The server exposes a single
+SPARQL tool, \texttt{run\_sparql}, which an agent calls with a database name and a
+query string and which returns rows as CSV. We never modified the server's query
+engine. We varied only the shape of the CSV it returned, using a reshaping layer
+placed in front of the tool that, per condition, either passed the native result
+through or removed or added one column. Every task instructs the agent to run a
+single fixed (pinned) query verbatim, so any difference between conditions arises
+from reshaping rather than from a query the agent composed. We also use a second
+resource, HomoloGene~\cite{ncbi2013resources}, but only to count how often its label
+column carries a bare identifier rather than a name; no agent was run against
+HomoloGene.
+
+\paragraph{Models and decoding.}
+Two open weight agents were evaluated: Qwen3.6-35B-A3B (the higher-performing
+agent) and Qwen3-30B-A3B (the lower-performing agent), both from the Qwen3
+family~\cite{qwen3technical}. Both were served locally
+with vLLM~\cite{kwon2023vllm} at temperature 0, with a 16{,}384 token generation
+reserve, thinking disabled, a recursion limit of 60, and a single sequential
+worker. The two models require different serving profiles; in particular, the
+lower-performing model needs a YaRN~\cite{peng2023yarn} rope scaling factor of 2.0
+and a maximum context of 65{,}536, and a wrong
+factor silently corrupts generation, so the serving command line was verified
+before every run. In our runs both models were effectively deterministic at
+temperature 0: repeated runs gave identical outputs. Minor variation from software
+or hardware is possible in principle, but we did not observe it, which is why one
+run per item per condition is sufficient and why any variation across items
+reflects the items rather than sampling. Throughout, an item is one task: a single
+question about one molecule in the label experiment or one compound in the units experiment, run
+once under each condition. When we report tokens for a run, we mean the total
+number of tokens the agent used for one item under one condition, summed over the
+prompt and the generation across every step and tool call of that run.
+
+\paragraph{Two manipulations.}
+We study two settings, each a single column change to the returned payload. In the
+\emph{label experiment} (recoverable ambiguity) the information the agent needs is present
+but implicit. For a chosen target we ask the server for the compounds tested
+against it, each with its \texttt{rdfs:label} and \texttt{chemblId}. A molecule's
+label is either a real compound name or a copy of the molecule's own accession, and
+the accession also appears in the adjacent column, so the ambiguity is resolvable
+from the payload alone. The two conditions are \texttt{label\_implicit}, the native
+table, and \texttt{label\_explicit}, the same table plus one column,
+\texttt{moleculeLabel\_kind}, whose value is \texttt{id} when the label equals the
+accession and \texttt{name} otherwise. That column is a deterministic function of
+two columns present in both conditions, so it adds no information and only makes the
+distinction explicit. Each task names one molecule and asks the agent to report its
+real compound name, or exactly NONE if it has none. In the \emph{units experiment}
+(genuinely absent information) we ask for the IC50 activities of a target's
+compounds as \texttt{chemblId}, \texttt{value}, and \texttt{units}, filtered to
+rows whose unit is nanomolar (nM) or micromolar ($\mu$M). The two conditions are
+\texttt{units\_on}, the native table, and \texttt{units\_off}, the same table with
+the units column removed. With the unit removed, the default reading of a bare
+value is nM, which is correct for a row whose true unit was nM and wrong by a factor
+of 1000 for a row whose true unit was $\mu$M. Each task names one compound and asks for
+its IC50 in nM.
+
+\paragraph{Target selection.}
+The label experiment uses a single, canonical target, CHEMBL4096 (the tumor protein TP53),
+because the manipulation there tests a data curation pattern that is a property of
+the identifier, not of the compound, and because generality is carried by the
+exhaustive prevalence counts. The units experiment uses a random sample of targets,
+because there the effect could in principle be a property of one target's
+particular values. The sampling population is the set of ChEMBL targets that have
+both nM and $\mu$M units recorded for IC50, which is a scope condition (a manipulation
+of the unit column is only defined where both units occur), not a selection on the
+size of any effect. That population contains 3{,}629 targets. From it we drew 20
+targets by a seeded, order independent rule, $\mathrm{rank}(id) =
+\mathrm{sha256}(seed, id)$ ascending, so the sample is reproducible and does not
+depend on the query engine's row order.
+
+\paragraph{Deterministic response windows.}
+Each pinned query returns at most a fixed number of rows (LIMIT 200 for the label
+experiment, LIMIT 100 for the units experiment). A LIMIT without an explicit ordering returns an
+implementation defined subset, which is not reproducible when the number of
+candidate rows exceeds the limit; we observed this directly (repeated executions
+returned different subsets). We therefore added a deterministic ORDER BY to every
+pinned query: ORDER BY \texttt{?chemblId} for the label experiment and ORDER BY
+\texttt{?activity} for the units experiment. We verified that \texttt{?activity} is unique
+per returned row for all 20 units targets (the row count equals the count of
+distinct activities), so it induces a total order and a reproducible window;
+\texttt{?chemblId} plays the same role for the label experiment. We build each
+target's item list, with its frozen correct and trap answers, from our own run of
+the pinned query; at test time the agent runs the same query again through
+\texttt{run\_sparql}. Scoring is therefore valid only if the two runs return the
+same rows, which is why the ordering must be deterministic. With the ordering fixed,
+the item selection window, the agent's live query, and any later capture of the
+payload all return the identical rows.
+
+\paragraph{Item construction.}
+On the deterministic TP53 window of 200 rows (124 id-only and 76 named), the label
+experiment uses every row: 124 treatment items (label equals accession, correct answer
+NONE) and 76 control items (label is a real name, correct answer the name). For the
+units experiment, for each target we applied a frozen exclusion set to the window before
+selecting scored items. Two flags exclude a row: \texttt{dataValidityIssue = true}
+(a pathological value that would mislead the agent before any unit reasoning) and
+\texttt{potentialDuplicate = true} (a non independent repeat of another row's
+value). The \texttt{standardRelation} flag (for example ``\texttt{>}'') and
+\texttt{activityComment} were examined and not excluded, because they are orthogonal
+to unit handling. The agent still sees the full raw window; the exclusion set only
+governs which rows are scored. Scored treatment items are the eligible $\mu$M rows and
+scored control items are the eligible nM rows, taken in payload order with no
+selection on outcome. No per target cap was applied, so a target contributes as
+many items as its window affords; the analysis accounts for this. The resulting
+suite has 929 treatment ($\mu$M) items and 308 control (nM) items across the 20 targets.
+
+\paragraph{Scoring.}
+In the label experiment, correctness is judged from the final answer text by a regular
+expression: a treatment item is correct if the answer states NONE; a control item
+if it states the molecule's name. A treatment item is a misread if the answer
+asserts the accession as the name. An answer that explicitly declines is scored as
+an abstention, and a correct answer is never counted as an abstention or a misread.
+In the units experiment, because the sampled $\mu$M values are mostly decimals and some are in
+exponential notation, digit aligned string matching does not generalize, so scoring
+is numeric. From the answer text we take the numbers the agent commits to and
+normalize each to nM, recognizing both Unicode code points that render as the micro
+sign (U+00B5 MICRO SIGN and U+03BC GREEK SMALL LETTER MU), which agents use
+interchangeably. We then ask which hypothesis each number supports: the correct
+value (the $\mu$M value times 1000) or the trap value (the $\mu$M value read as nM).
+The two are always a factor of 1000 apart. A single unit bearing number is classified by which
+value it is nearer in $\log_{10}$ space, with the boundary at their geometric mean;
+a value farther than 0.5 in $\log_{10}$ from the nearer hypothesis is scored as
+neither. When an answer mentions both hypotheses, the committed value is taken from
+the last sentence that states a concentration, and an answer whose final sentence
+explicitly declines to choose is routed to human review rather than guessed. The
+gate for correctness over misread over abstention is unchanged. For control items
+there is no trap. Every scoring rule was checked against the raw answer text, which
+exposed two extractor defects. One micro sign code point was not recognized. The
+other rule sometimes picked up a number the answer mentioned only in passing, such
+as another row's value, instead of the value the agent gave as its final answer.
+Both were fixed, and the small number of answers routed to review were adjudicated
+by hand.
+
+\paragraph{Prevalence.}
+To establish that the collisions are common rather than anecdotal, we counted them
+exhaustively rather than estimating from a sample: the fraction of ChEMBL small
+molecules whose \texttt{rdfs:label} equals the accession, the same fraction among
+molecules tested against TP53, and the fraction of HomoloGene genes whose label is
+an LOC identifier.
+
+\paragraph{Verification and gates.}
+A broken manipulation in this setting returns fluent, plausible prose rather than
+an error, so we did not trust aggregates. Before accepting a target's numbers we
+applied three checks per item. First, the first \texttt{run\_sparql} output had to
+differ between the two conditions; identical hashes would mean the manipulation
+never reached the payload. Second, the rows the agent received under
+\texttt{units\_on} had to match the rows we had selected that target's items from,
+in the same order; a nondeterministic window would otherwise make the two disagree.
+Third, the set of scored items had to match the frozen item list. Endpoint faults that produced empty or failed queries were detected by
+these checks, and the affected targets were re-run.
+
+\paragraph{Statistics.}
+The primary test in each experiment is a stratified McNemar exact test on the paired
+conditions, pooled across targets by the Cochran Mantel Haenszel procedure, two
+sided. The effective sample is the set of targets (paired within a target,
+independent across targets); we do not treat the items as independent. Because no
+per target cap was applied, larger targets contribute more items, so we also report
+the per target discordant counts and note that the direction is unanimous across
+targets. Specificity, a comparison between different molecules ($\mu$M failure versus
+nM failure), uses Fisher's exact test. Prevalence figures are exhaustive counts,
+not tests.
+
+\section{Results}
+\label{sec:results}
+
+\paragraph{Prevalence.}
+A molecule's \texttt{rdfs:label} is a copy of its own accession, rather than a real
+name, for $1{,}876{,}910$ of $1{,}920{,}603$ ChEMBL small molecules (97.7 percent).
+Among the $36{,}494$ molecules tested against TP53 that carry a label, $35{,}910$
+(98.4 percent) have a label that is only the accession rather than a real name. In
+a second, unrelated resource, HomoloGene, the same label column carries two kinds
+of content: a real gene symbol for most genes, and a bare LOC identifier plus the
+gene's own number when no symbol is assigned, which happens for $27{,}066$ of
+$275{,}237$ genes (9.8 percent). We use HomoloGene only as an independent instance
+of one column standing in for both a name and an identifier; we did not run agents
+on it.
+
+\paragraph{Label experiment: recoverable ambiguity.}
+On the deterministic TP53 window (124 treatment, 76 control), the higher-performing
+agent resolves the collision essentially on its own, and the annotation buys it
+almost nothing; the lower-performing agent fails badly without the annotation and
+improves sharply with it, but does not catch up (Table~\ref{tab:label}).
+
+\begin{table}[t]
+\centering
+\caption{Label experiment on the deterministic TP53 window.}
+\label{tab:label}
+\begin{tabular}{llcc}
+\toprule
+model & condition & treatment correct & control correct \\
+\midrule
+Qwen3.6-35B-A3B & implicit & 123/124 & 76/76 \\
+Qwen3.6-35B-A3B & explicit & 124/124 & 76/76 \\
+Qwen3-30B-A3B   & implicit & 16/124  & 76/76 \\
+Qwen3-30B-A3B   & explicit & 75/124  & 76/76 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For the lower-performing agent the annotation raises treatment correctness from
+16/124 to 75/124 (McNemar exact, 61 items gained, 2 lost, two sided $p \approx
+4.4\times10^{-16}$). It does not equalize the two agents: the between model gap,
+measured as items the higher-performing agent answers and the lower-performing does
+not, narrows from 107 under the implicit payload ($p \approx 1.2\times10^{-32}$) to
+49 under the explicit payload ($p \approx 3.6\times10^{-15}$), but remains large and
+highly significant. Controls are answered correctly by both models in both
+conditions, so the effect is specific to the ambiguous treatment rows. The
+annotation adds 407 tokens per run. The implicit run averaged $43{,}189$ tokens for
+the higher-performing agent and $129{,}146$ for the lower-performing agent, so 407
+tokens is 0.94 percent and 0.31 percent of the run respectively.
+
+\paragraph{Units experiment: genuinely absent information.}
+Across the 20 targets the suite has 929 treatment ($\mu$M) and 308 control (nM) items.
+Removing the unit column leaves the higher-performing agent's answers almost
+unchanged on control rows and collapses them on treatment rows
+(Table~\ref{tab:units}).
+
+\begin{table}[t]
+\centering
+\caption{Units experiment across 20 targets.}
+\label{tab:units}
+\begin{tabular}{llcc}
+\toprule
+model & condition & treatment ($\mu$M) correct & control (nM) correct \\
+\midrule
+Qwen3.6-35B-A3B & units\_on  & 929/929 & 308/308 \\
+Qwen3.6-35B-A3B & units\_off & 579/929 & 307/308 \\
+Qwen3-30B-A3B   & units\_on  & 260/929 & 305/308 \\
+Qwen3-30B-A3B   & units\_off & 0/929   & 306/308 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For the higher-performing agent, removing the unit costs 350 of 929 treatment
+items, with no item recovered in the other direction (stratified McNemar/CMH, 350
+lost, 0 gained, two sided $p < 10^{-77}$), and the loss appears in every one of the
+20 targets (Table~\ref{tab:pertarget}). The directional prediction holds: under
+\texttt{units\_off} the higher-performing agent fails on 350/929 (37.7 percent) of
+$\mu$M rows but only 1/308 (0.3 percent) of nM rows (Fisher exact, odds ratio
+$\approx 186$, $p \approx 5\times10^{-36}$).
+
+The cost is not selective. For the higher-performing agent, a $\mu$M item averaged
+$35{,}273$ tokens under \texttt{units\_on} and $197{,}819$ under \texttt{units\_off},
+a factor of 5.6; a nM item averaged $34{,}983$ and $143{,}120$, a factor of 4.1. The
+nM rows are answered correctly with or without the unit yet still cost 4.1 times
+more without it. Whether a corrupted row is recovered is strongly associated with
+whether the agent noticed the gap and searched. The number of calls was chosen by the agent, not assigned by us. Because we only
+grouped rows by this self-selected behavior, the two groups may differ in other ways
+as well, so the link between noticing and recovery is correlational rather than
+causal. The agent made a second call on 766 rows and
+answered in one call on 163, and was correct on 566 of the 766 but on only 13 of
+the 163 (Fisher exact, $p \approx 4\times10^{-58}$). The second-call rows averaged
+$232{,}473$ tokens against $34{,}967$ for single-call rows, about 6.6 times more
+(Table~\ref{tab:mediation}).
+
+The lower-performing agent shows the same shape from below. Shown the unit, it
+converts $\mu$M to nM on 260/929 rows (28 percent); with the unit removed it succeeds
+on none (McNemar, 260 lost, 0 gained, $p \approx 2\times10^{-58}$). The between
+model gap under \texttt{units\_on} is 669 $\mu$M items that the higher-performing agent
+answers and the lower-performing does not, with none in the other direction. A
+single-target pilot had suggested the lower-performing agent could not convert at
+all. At scale it converts on more than a quarter of rows, so the pilot's zero was a
+property of that one table, not of the model.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Units experiment, per target, higher-performing agent (Qwen3.6-35B-A3B).
+Treatment items are $\mu$M rows; columns \emph{on} and \emph{off} give the number
+correct under \texttt{units\_on} and \texttt{units\_off}. $b$ counts items correct
+with the unit and wrong without it, $c$ the reverse. \emph{nM items} is the number
+of control (nM) items for that target, and \emph{nM off} is how many of them are
+correct under \texttt{units\_off}. The effect is present in every target ($b>0$)
+and never reverses ($c=0$).}
+\label{tab:pertarget}
+\begin{tabular}{lrrrrrrr}
+\toprule
+target & $\mu$M items & on & off & $b$ & $c$ & nM items & nM off \\
+\midrule
+CHEMBL612851 & 100 & 100 & 80 & 20 & 0 & 0 & 0 \\
+CHEMBL2889 & 93 & 93 & 59 & 34 & 0 & 0 & 0 \\
+CHEMBL3112376 & 88 & 88 & 42 & 46 & 0 & 1 & 1 \\
+CHEMBL3108638 & 84 & 84 & 63 & 21 & 0 & 1 & 1 \\
+CHEMBL612570 & 73 & 73 & 38 & 35 & 0 & 0 & 0 \\
+CHEMBL1075533 & 71 & 71 & 48 & 23 & 0 & 0 & 0 \\
+CHEMBL614517 & 67 & 67 & 40 & 27 & 0 & 0 & 0 \\
+CHEMBL1075538 & 65 & 65 & 38 & 27 & 0 & 0 & 0 \\
+CHEMBL4523988 & 46 & 46 & 29 & 17 & 0 & 13 & 13 \\
+CHEMBL1875 & 43 & 43 & 25 & 18 & 0 & 43 & 43 \\
+CHEMBL2366254 & 43 & 43 & 28 & 15 & 0 & 11 & 11 \\
+CHEMBL1743121 & 34 & 34 & 19 & 15 & 0 & 2 & 2 \\
+CHEMBL2095172 & 30 & 30 & 17 & 13 & 0 & 14 & 14 \\
+CHEMBL6080 & 27 & 27 & 15 & 12 & 0 & 37 & 37 \\
+CHEMBL3072 & 26 & 26 & 24 & 2 & 0 & 74 & 73 \\
+CHEMBL5084 & 12 & 12 & 4 & 8 & 0 & 2 & 2 \\
+CHEMBL5198 & 11 & 11 & 5 & 6 & 0 & 5 & 5 \\
+CHEMBL5705 & 10 & 10 & 2 & 8 & 0 & 78 & 78 \\
+CHEMBL3071 & 3 & 3 & 2 & 1 & 0 & 2 & 2 \\
+CHEMBL3799 & 3 & 3 & 1 & 2 & 0 & 25 & 25 \\
+\midrule
+TOTAL & 929 & 929 & 579 & 350 & 0 & 308 & 307 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small
+\caption{Noticing and recovery (units experiment, treatment rows, \texttt{units\_off},
+higher-performing agent). Rows are split by the agent's own number of calls. Cost
+is the mean total tokens divided by the \texttt{units\_on} baseline (35{,}273
+tokens).}
+\label{tab:mediation}
+\begin{tabular}{lrrrrrrr}
+\toprule
+group & $n$ & correct & misread & abstain & neither & mean tokens & cost \\
+\midrule
+made a second call & 766 & 566 (73.9\%) & 142 (18.5\%) & 56 (7.3\%) & 2 & 232{,}473 & 6.6$\times$ \\
+answered in one call & 163 & 13 (8.0\%) & 140 (85.9\%) & 10 (6.1\%) & 0 & 34{,}967 & 1.0$\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Summary of the two experiments.}
+The two experiments differ in how much the lower-performing agent needs the explicit
+column. When the information is present but implicit, a zero information annotation
+lifts it from 16 of 124 to 75 of 124, a large gain that still leaves it behind the
+higher-performing agent. When the information is genuinely absent, the unit is
+necessary for any success at all, since it succeeds on none without the unit and on
+28 percent with it. In both settings the explicit column helps the lower-performing
+agent far more than the higher-performing one, which needs it not at all in the
+first setting and pays for its absence in the second.
+
+\section{Discussion and Future Work}
+
+\paragraph{Why the contribution outlives the two models we could run.}
+Available hardware limited us to two open weight agents, so our capability axis has
+only two points. It is worth saying plainly why this does not date the work. Our
+claim is not a pair of scores. It is a structure that model progress does not
+remove. A public endpoint serves many kinds of client at once: older models, small
+or on-device models, quantized or low-cost deployments, and agents from other
+vendors. It cannot see which one is calling. As long as that
+range has any spread in capability, the value of a change to the payload depends on
+the client, and the server cannot apply this cost client by client. Improving models
+do not remove this spread. They lengthen the tail of lower-performing
+clients that keep reaching the same endpoints for years. The safeguard logic is
+therefore structural, not a feature of these particular models.
+
+Two of our findings are, at their source, independent of the model. Information
+that was never recorded, such as a missing unit, is absent from the payload itself.
+No agent can recover it, no matter how capable, because capability cannot
+reconstruct data that was never there. The second is that the collisions that drive
+the effects, such as an accession standing in for a name or an LOC gene identifier,
+are properties of the data and its curation rather than of the model. They are common, appearing for 97.7 percent of ChEMBL molecules,
+98.4 percent of the molecules that bind TP53, and 9.8 percent of HomoloGene genes,
+and they will remain common as models change.
+
+\paragraph{The question outlives the protocol.}
+We ran this study on an MCP server because MCP is the layer that life-science
+agents use today, but the question we ask is not about MCP. How MCP itself will
+develop, and whether some later standard will replace it, is not something we can
+forecast. What is safe to assume is that agents built on language models will keep
+needing to reach knowledge they do not hold internally, whether through retrieval,
+through learned tool use, or through whatever interface succeeds MCP. The object of
+our measurement is the efficiency of knowledge sharing between a language model and
+an external source, meaning how much of the interpretation the source spells out
+and how much it leaves to the agent, and at what cost in tokens. That trade-off,
+and our central result that its value depends on the client rather than on the
+payload, is a property of the exchange, not of the protocol that carries it. Any
+successor interface that returns structured results to a range of agents inherits
+the same choice and the same client dependence. We therefore expect the framework,
+and the questions it makes measurable, to transfer to whatever replaces the
+particular protocol studied here.
+
+\paragraph{What the community can reuse.}
+The lasting artifact is the measurement, not its current answer. The task sets are
+small, with 200 label items and about 1{,}200 unit items. Their response windows
+are fixed by ordering, and they are scored by checked criteria, so any new model
+can be run through them in minutes. This turns the question of whether explicitness
+is worth it for a given model into a quick, reproducible check, and it lets the
+community follow a moving threshold: the capability at which a column that carries
+no information stops changing the answers. If future models, smaller and more
+capable, come to resolve these collisions on their own even in low-cost deployments,
+the value of the added column falls to zero everywhere. The efficiency argument then
+wins, which is simply not to spend tokens stating what every client already infers.
+Our framework is exactly what detects that crossover. It tells a server operator
+when it is safe to stop spending those tokens, and that decision support becomes more
+useful, not less, as models improve.
+
+More broadly, the method transfers beyond this server and these columns. It makes a
+single change to a production payload and grounds the effect in exhaustive counts
+rather than anecdote. It verifies every number by reading the bytes the server
+returned and the agent wrote, because a broken change here returns fluent but wrong
+prose. It fixes the response window so runs are reproducible, reports cost with
+clear denominators, and reassigns failures from the model to the interface. These
+pieces are reusable for any study of response design.
+
+\paragraph{Limitations and open directions.}
+The clearest limitation is the capability axis, which has only two points. Both
+agents are from the Qwen family and differ in both size and generation, so calling
+one higher-performing and the other lower-performing confounds capability with
+generation and with family-specific behavior. We therefore report two specific
+agents and do not claim a general law relating capability to the value of
+explicitness. The released task sets are meant to let others place many more
+agents, from other families and generations, on this axis, and to draw the full
+curve that relates capability to the value of a given change. Other directions
+include other servers and domains, other payload factors beyond removing a unit and
+annotating a label, and the question of alias tolerance that our tooling raised but
+did not test. A further limitation concerns the units experiment specifically. Unlike the
+label collision, whose prevalence we measured exhaustively, we did not measure how
+often a real interface or export drops the unit column, so we treat the units experiment
+as a controlled demonstration of the genuinely absent case rather than as evidence
+about its frequency in the wild. We invite the community to run the task sets on their own agents and
+report where, for their clients, the extra cost stops being worth paying.
+
+\paragraph{Threats to validity.}
+A broken change in this setting returns fluent, plausible prose, so several of our
+own early conclusions were wrong until we read the bytes. We record the main cases,
+because they also motivate the checks in Section 3. First, a single target units
+pilot suggested the lower-performing agent could not convert $\mu$M to nM at all; the 20
+target run showed it converts on 28 percent of rows, so the pilot floor was a
+property of one table. Second, two defects in the numeric scorer (a micro sign
+variant it did not recognize, and a rule that captured a secondary measurement)
+inflated an apparent control failure rate about tenfold; both were fixed and the
+few genuinely ambiguous answers were adjudicated by hand. Third, a response window
+that was not reproducible, together with an underpowered 30-item label subset,
+first suggested that the label annotation had lost its effect. A reproducible run
+over the full 200-row window restored a strong effect ($p \approx 4\times10^{-16}$).
+The same run also corrected an earlier claim that the annotation closed the gap
+between the two agents. It narrows the gap but does not close it. These
+episodes are the reason the study fixes windows by ordering, checks payload
+identity per item, and verifies every number against the raw bytes.
+
+\section{Conclusion}
+ 
+We asked whether making a tool's return value more explicit helps an agent, and at
+what token cost, by changing one column of what a production life-science server
+returns while holding the model and the task fixed. The answer is that the value of
+explicitness is a property of the client, not of the payload. When the needed
+information was present but implicit, a zero-information column lifted a
+lower-performing agent from 16 to 75 of 124 correct, for about 407 tokens, under one
+percent of the run. A higher-performing agent already answered 123 of 124 and gained
+almost nothing. The column narrowed the gap between the two agents but did not close
+it. When the information was genuinely absent, removing the unit made the
+higher-performing agent wrong on 350 of 929 micromolar rows and the lower-performing
+agent wrong on all of them, and it raised token cost several times even on the rows
+that stayed correct. Because these collisions are the common case rather than the
+exception, and because a public server cannot see which agent is calling, a uniform
+instruction to be explicit is best read as a safeguard: cheap, worthless to the
+clients that would have inferred the answer, and decisive for those that would not.
+The framework we release lets an operator measure, for a given set of clients,
+where that extra cost stops being worth paying, and the question it makes measurable,
+namely the efficiency of knowledge sharing between a language model and an external
+source, will outlast the particular protocol studied here.
+
+\section{Acknowledgments}
+This work was supported by the MEXT National Life Science Database Project (NLDP) (grant number JPNLDP202401) and the Life Science Database Integration Project, NBDC of Japan Science and Technology Agency.
+We also acknowledge and thank the participants of the DBCLS Domestic BioHackathon BH26.6, with whom several of the authors had fruitful discussions and gained deeper insights into this work.
+
+\section*{Declaration on Generative AI}
+  
+ During the preparation of this work, the authors used Claude Desktop in order to: Drafting content. After using this tool, the authors reviewed and edited the content as needed and take full responsibility for the publication’s content. 
+ 
+\bibliography{references}
+
+\section{Online Resources}
+
+The sources to reproduce this work and result data are available via
+\href{https://github.com/dbcls/mcp-return-value-study}{GitHub}.
+
+\end{document}
